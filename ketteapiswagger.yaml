@@ -1,0 +1,166 @@
+swagger: "2.0"
+info:
+  description: "Description of a RESTful API for registering bicycles on the ethereum blockchain via KETTE."
+  version: "1.0.0"
+  title: "KETTE registry"
+  contact:
+    email: "hannes@kette.io"
+  license:
+    name: "MIT"
+    url: "https://github.com/kette-io/nft-asset-registry-backend/blob/master/LICENSE"
+host: "api.kette.io"
+basePath: "/v1"
+tags:
+- name: "bike"
+  description: "Everything about your bikes"
+- name: "price"
+  description: "Price information for registration"
+schemes:
+- "https"
+paths:
+  /bike:
+    post:
+      tags:
+      - "bike"
+      summary: "Create a new record for a bike"
+      description: "Creates a record of the bike in the KETTE smart contract by minting an ERC-721 compliant token on the ethereum blockchain. Charges a credit card with the current price in cents. Returns a transaction hash."
+      operationId: "createBike"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Bike that is supposed to be registered"
+        required: true
+        schema:
+          $ref: "#/definitions/BikeCreation"
+      responses:
+        200:
+          description: "registration successful"
+          schema:
+            type: "object"
+            properties:
+             hash:
+              type: "string"
+              example: "0xff54aaf2dcf63ad4cd923491167dca03cc6064afbb183420d5776a729b812154"
+    get:
+      tags:
+      - "bike"
+      summary: "Finds bikes by unique parameters"
+      description: "Returns all bikes if a match is found. Note that this lookup only works for EXACT matches (case sensitive)."
+      operationId: "getBike"
+      produces:
+      - "application/json"
+      parameters:
+        - in: query
+          name: "vendor"
+          type: "string"
+          description: "The vendor of the bike"
+        - in: query
+          name: "serialNumber"
+          type: "string"
+          description: "serial number of the bike"
+        - in: query
+          name: "frameNumber"
+          type: "string"
+          description: "frame number of the bike"
+      responses:
+        200:
+          description: "bike found"
+          schema:
+            $ref: "#/definitions/Bike"
+  /bike/{ethAddress}:
+    get:
+      tags:
+      - "bike"
+      summary: "Finds all bike registered to the provided eth address"
+      description: "Returns all bicycles that are registered to a given ethereum address."
+      operationId: "findByEthAddress"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "ethAddress"
+        in: "path"
+        description: "ethereum address that bikes are registered to"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Bike"
+  /price:
+    get:
+      tags:
+      - "price"
+      summary: "Returns the current price in € (Euro) that is charged for a bike registration"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "object"
+            properties:
+             priceInEuro:
+              type: "integer"
+              example: 0.7188148
+             priceInCents:
+              type: "integer"
+              example: 72
+securityDefinitions:
+  api_key:
+    type: "apiKey"
+    name: "api_key"
+    in: "header"
+definitions:
+  BikeCreation:
+    type: "object"
+    properties:
+      vendor:
+        type: "string"
+        example: "Hercules"
+      serialNumber:
+        type: "string"
+        example: "SN1234567"
+      frameNumber:
+        type: "string"
+        example: "FN98765123"
+      ipfsImageHash:
+        type: "string"
+        example: "QmTPm3dmbpjFzUKs7iptDMZYaJE8uMTbfTCs8EkcrJK4ej"
+      bikeOwnerAccount:
+        type: "string"
+        example: "0x5ae6A13cF333d8847DC2f8224E4ED700429fEe38"
+      stripeToken:
+        type: "string"
+        example: "tok_visa"
+    xml:
+      name: "Bike"
+  Bike:
+    type: "object"
+    properties:
+      vendor:
+        type: "string"
+        example: "Hercules"
+      serialNumber:
+        type: "string"
+        example: "SN1234567"
+      frameNumber:
+        type: "string"
+        example: "FN98765123"
+      ipfsImageHash:
+        type: "string"
+        example: "QmTPm3dmbpjFzUKs7iptDMZYaJE8uMTbfTCs8EkcrJK4ej"
+      state:
+        type: "string"
+        description: "Bike Status"
+        enum:
+        - "ok"
+        - "stolen"
+        - "lost"
+externalDocs:
+  description: "Find out more about KETTE"
+  url: "http://kette.io"
