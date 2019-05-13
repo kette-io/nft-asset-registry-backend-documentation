@@ -18,7 +18,7 @@ tags:
 schemes:
 - "https"
 paths:
-  /bike:
+  /bikes:
     post:
       tags:
       - "bike"
@@ -71,7 +71,7 @@ paths:
           description: "bike found"
           schema:
             $ref: "#/definitions/Bike"
-  /bike/{ethAddress}:
+  /bikes/{ethAddress}:
     get:
       tags:
       - "bike"
@@ -110,11 +110,6 @@ paths:
              priceInCents:
               type: "integer"
               example: 72
-securityDefinitions:
-  api_key:
-    type: "apiKey"
-    name: "api_key"
-    in: "header"
 definitions:
   BikeCreation:
     type: "object"
